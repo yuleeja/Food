@@ -54,9 +54,9 @@ window.addEventListener('DOMContentLoaded', function () {
             seconds = 0;
         } else {
             days = Math.floor(t / (1000 * 60 * 60 * 24)), // когда общее кол-во мс / на кол-во мс в одних сутках, мы получим сколько суток у нас осталось до deadline, floor - округлит значение
-            hours = Math.floor((t / (1000 * 60 * 60) % 24)),
-            minutes = Math.floor((t / 1000 / 60) % 60),
-            seconds = Math.floor((t / 1000) % 60);
+                hours = Math.floor((t / (1000 * 60 * 60) % 24)),
+                minutes = Math.floor((t / 1000 / 60) % 60),
+                seconds = Math.floor((t / 1000) % 60);
         }
 
         return {
@@ -104,5 +104,55 @@ window.addEventListener('DOMContentLoaded', function () {
         }
 
     }
-    setClock('.timer', deadline)
+    setClock('.timer', deadline);
+
+    //MODAL
+
+    const modalTrigger = document.querySelectorAll('[data-modal]'),
+          modal = document.querySelector('.modal'),
+          modalCloseBtn = document.querySelector('[data-close]');
+
+    function openModal () {
+        modal.classList.add('show');
+        modal.classList.remove('hide'); 
+        document.body.style.overflow = 'hidden'; //запрещает скролл по странице, когда открыто модальное окно
+        clearInterval(modalTimerId); //если пользователь уже сам нажал "Связаться с нами" - модальное окно не будет открываться спустя 5с нахождения на сайте
+    }
+
+    modalTrigger.forEach(btn => {
+        btn.addEventListener('click', openModal); 
+    });
+
+    function closeModal () {
+        modal.classList.add('hide');
+        modal.classList.remove('show');
+        document.body.style.overflow = '';
+    }
+
+    modalCloseBtn.addEventListener('click', closeModal);
+
+    // закрытие модального окна кликом вне диалогового окна
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeModal(); 
+        }
+    });
+
+    //закрытие модального окна, нажатием Esc
+    document.addEventListener('keydown', (e) => {
+        if (e.code === 'Escape' && modal.classList.contains('show')) {
+            closeModal();
+        }
+    });
+
+    const modalTimerId = setTimeout(openModal, 20000); //показывать модальное окно спустя 5с нахождения на сайте
+
+    function showModalByScroll () {
+        if (window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight -1){
+            openModal();
+            window.removeEventListener('scroll', showModalByScroll);
+        }
+    }
+
+    window.addEventListener('scroll', showModalByScroll);
 });
